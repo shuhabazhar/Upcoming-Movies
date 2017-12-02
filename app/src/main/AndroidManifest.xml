@@ -19,6 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.MovieDetailsActivity" />
+        <activity
+            android:name=".activity.InformationActivity"
+            android:label="Information" />
     </application>
 
 </manifest>
