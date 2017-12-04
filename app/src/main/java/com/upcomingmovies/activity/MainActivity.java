@@ -21,6 +21,7 @@ import com.upcomingmovies.application.AppController;
 import com.upcomingmovies.model.UpcomingMovies;
 import com.upcomingmovies.parser.ParseMovieObject;
 import com.upcomingmovies.utils.Constant;
+import com.upcomingmovies.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     ParseMovieObject parseMovieObject;
     RecyclerView rvUpcomingMovies;
     Toolbar mToolbar;
+    Utils utils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getUpcomingMoviesList() {
+        utils = new Utils();
+        utils.showProgressDialog(MainActivity.this, Constant.PLEASE_WAIT);
         String upcomingMovieUrl = Constant.BASE_URL + Constant.UPCOMING_MOVIE_URL;
         RequestQueue requestQueue = AppController.getInstance().getRequestQueue();
         StringRequest stringRequest = new StringRequest(Request.Method.GET, upcomingMovieUrl, new Response.Listener<String>() {
@@ -68,11 +72,13 @@ public class MainActivity extends AppCompatActivity {
                     setGetData(arrObject);
                 }
                 initAdapter();
+                utils.hideProgressDialog();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("", "");
+                Log.d("Error", ""+error);
+                utils.hideProgressDialog();
             }
         });
         requestQueue.add(stringRequest);

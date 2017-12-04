@@ -1,6 +1,6 @@
 package com.upcomingmovies.parser;
 
-import com.android.volley.toolbox.StringRequest;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;

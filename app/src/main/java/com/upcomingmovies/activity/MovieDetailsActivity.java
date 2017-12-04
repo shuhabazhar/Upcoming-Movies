@@ -22,6 +22,7 @@ import com.upcomingmovies.model.ImageList;
 import com.upcomingmovies.parser.ParseImage;
 import com.upcomingmovies.parser.ParseMovieDetails;
 import com.upcomingmovies.utils.Constant;
+import com.upcomingmovies.utils.Utils;
 import com.upcomingmovies.utils.ZoomOutPageTransformer;
 
 import org.json.JSONArray;
@@ -40,14 +41,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ViewPager
     ParseMovieDetails parseMovieDetails;
     TextView txtTitle, txtOverview;
     RatingBar ratingBar;
-    /*int[] mResources = {
-            R.drawable.first,
-            R.drawable.second,
-            R.drawable.third,
-            R.drawable.fourth,
-            R.drawable.fifth,
-            R.drawable.sixth
-    };*/
+    Utils utils;
 
     int currentPage = 0;
     Timer timer;
@@ -58,13 +52,20 @@ public class MovieDetailsActivity extends AppCompatActivity implements ViewPager
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-        Bundle bundle = getIntent().getExtras();
-        id = bundle.getString(Constant.MOVIE_ID);
-        movieName = bundle.getString(Constant.MOVIE_NAME);
+        utils = new Utils();
+        getBundleData();
         initToolbar();
         initViews();
         getImageList();
         getMovieDetails();
+    }
+
+    private void getBundleData() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            id = bundle.getString(Constant.MOVIE_ID);
+            movieName = bundle.getString(Constant.MOVIE_NAME);
+        }
     }
 
     private void initViews() {
@@ -83,16 +84,26 @@ public class MovieDetailsActivity extends AppCompatActivity implements ViewPager
                 JSONObject jsonObject = parseMovieDetails.getJSONObject();
                 String overview = parseMovieDetails.getOverview(jsonObject);
                 String title = parseMovieDetails.getTitle(jsonObject);
-                String popularity = parseMovieDetails.getPopularity(jsonObject);
+                float popularity = Float.parseFloat(parseMovieDetails.getPopularity(jsonObject));
                 txtTitle.setText(title);
                 txtOverview.setText(overview);
-                ratingBar.setRating(Float.parseFloat(popularity));
+                double d;
+//                if (popularity >= 100) {
+                    d = ((popularity * 5) / 1000);
+//                } else {
+//                    d = ((popularity * 5) / 100);
+//                }
+//                float d= (popularity /100 * 5);
+                ratingBar.setRating((float) d);
+
+                utils.hideProgressDialog();
 
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Log.e("Error",""+error);
+                utils.hideProgressDialog();
             }
         });
         requestQueue.add(stringRequest);
@@ -102,10 +113,18 @@ public class MovieDetailsActivity extends AppCompatActivity implements ViewPager
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         mToolbar.setTitle(movieName);
+    }
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void getImageList() {
+        utils.showProgressDialog(MovieDetailsActivity.this, Constant.PLEASE_WAIT);
         final RequestQueue requestQueue = AppController.getInstance().getRequestQueue();
         String imageUrl = Constant.BASE_URL + "/" + id + Constant.IMAGE_URL;
         StringRequest jsonObjectRequest = new StringRequest(Request.Method.GET, imageUrl, new Response.Listener<String>() {
@@ -115,16 +134,19 @@ public class MovieDetailsActivity extends AppCompatActivity implements ViewPager
                 parseImage = new ParseImage(response);
                 JSONObject imageObject = parseImage.getJSONObject();
                 JSONArray imageArr = parseImage.getJSONArr(imageObject);
-                for (int imageCounter = 0; imageCounter < 6; imageCounter++) {
+                for (int imageCounter = 0; imageCounter < imageArr.length(); imageCounter++) {
                     JSONObject arrObject = parseImage.getArrObject(imageArr, imageCounter);
-                    setGetObject(arrObject);
+                    if (imageCounter < 5) {
+                        setGetObject(arrObject);
+                    }
                 }
                 setImageAdapter();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("Error Is", "" + error);
+                Log.e("Error Is", "" + error);
+                utils.hideProgressDialog();
             }
         });
         requestQueue.add(jsonObjectRequest);
