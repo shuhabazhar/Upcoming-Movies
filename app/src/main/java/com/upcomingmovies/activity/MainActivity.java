@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,6 +21,7 @@ import com.upcomingmovies.adapter.UpcomingMoviesAdapter;
 import com.upcomingmovies.application.AppController;
 import com.upcomingmovies.model.UpcomingMovies;
 import com.upcomingmovies.parser.ParseMovieObject;
+import com.upcomingmovies.utils.ConnectivityReceiver;
 import com.upcomingmovies.utils.Constant;
 import com.upcomingmovies.utils.Utils;
 
@@ -41,7 +43,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
         initToolbar();
-        getUpcomingMoviesList();
+        if (ConnectivityReceiver.isConnected()) {
+            getUpcomingMoviesList();
+        } else {
+            Toast.makeText(this, Constant.NO_INTERNET, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initToolbar() {

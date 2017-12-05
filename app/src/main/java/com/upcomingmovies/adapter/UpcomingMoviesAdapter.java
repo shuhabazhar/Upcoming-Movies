@@ -9,11 +9,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.upcomingmovies.R;
 import com.upcomingmovies.activity.MovieDetailsActivity;
 import com.upcomingmovies.model.UpcomingMovies;
+import com.upcomingmovies.utils.ConnectivityReceiver;
 import com.upcomingmovies.utils.Constant;
 
 import java.util.ArrayList;
@@ -81,10 +83,15 @@ public class UpcomingMoviesAdapter extends RecyclerView.Adapter<UpcomingMoviesAd
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.llMainLayout:
-                    Intent intent = new Intent(context, MovieDetailsActivity.class);
-                    intent.putExtra(Constant.MOVIE_ID, upcomingMoviesList.get(getAdapterPosition()).getMovieId());
-                    intent.putExtra(Constant.MOVIE_NAME, upcomingMoviesList.get(getAdapterPosition()).getTitle());
-                    context.startActivity(intent);
+                    if (ConnectivityReceiver.isConnected()) {
+                        Intent intent = new Intent(context, MovieDetailsActivity.class);
+                        intent.putExtra(Constant.MOVIE_ID, upcomingMoviesList.get(getAdapterPosition()).getMovieId());
+                        intent.putExtra(Constant.MOVIE_NAME, upcomingMoviesList.get(getAdapterPosition()).getTitle());
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, Constant.NO_INTERNET, Toast.LENGTH_SHORT).show();
+                    }
+
                     break;
             }
         }

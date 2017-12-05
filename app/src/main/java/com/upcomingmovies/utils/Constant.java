@@ -12,4 +12,5 @@ public class Constant {
     public static final String MOVIE_ID = "MOVIE_ID";
     public static final String MOVIE_NAME = "MOVIE_NAME";
     public static final String PLEASE_WAIT = "Please Wait...";
+    public static final String NO_INTERNET = "No Internet !! Please check Internet Connection";
 }
